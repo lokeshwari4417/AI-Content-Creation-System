@@ -1,0 +1,173 @@
+{% extends "layout.html" %}
+{% block title %}Content History — AI Content Creation System{% endblock %}
+
+{% block content %}
+
+<!-- ── Page Header ───────────────────────────────────────── -->
+<section class="page-header">
+  <h1 class="page-title">Content <span class="gradient-text">History</span></h1>
+  <p class="page-subtitle">Browse, search, and manage all previously generated content.</p>
+</section>
+
+<!-- ── Search Bar ───────────────────────────────────────── -->
+<section class="search-section">
+  <form method="GET" action="/history" class="search-form">
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        name="search"
+        placeholder="Search by topic…"
+        value="{{ search }}"
+        class="search-input"
+      />
+      <button type="submit" class="btn-search">Search</button>
+      {% if search %}
+        <a href="/history" class="btn-clear">✕ Clear</a>
+      {% endif %}
+    </div>
+  </form>
+
+  {% if search %}
+    <p class="search-info">
+      Showing results for <strong>"{{ search }}"</strong> —
+      {{ records|length }} record{% if records|length != 1 %}s{% endif %} found.
+    </p>
+  {% else %}
+    <p class="search-info">
+      {{ records|length }} record{% if records|length != 1 %}s{% endif %} total.
+    </p>
+  {% endif %}
+</section>
+
+<!-- ── History Records ───────────────────────────────────── -->
+<section class="history-section">
+
+  {% if records %}
+    <div class="history-grid">
+      {% for record in records %}
+      <div class="history-card" id="card-{{ record.id }}">
+
+        <!-- Card Header -->
+        <div class="history-card-header">
+          <div class="hc-meta">
+            <span class="hc-type">{{ record.content_type }}</span>
+            <span class="hc-date">{{ record.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+          </div>
+          <div class="hc-actions">
+            <a href="/export/{{ record.id }}" class="btn-icon" title="Download TXT">⬇</a>
+            <button
+              class="btn-icon btn-delete"
+              data-id="{{ record.id }}"
+              title="Delete record"
+            >🗑</button>
+          </div>
+        </div>
+
+        <!-- Topic + metadata -->
+        <h3 class="hc-topic">{{ record.topic }}</h3>
+        <div class="hc-pills">
+          <span class="pill">👤 {{ record.audience }}</span>
+          <span class="pill">🎨 {{ record.tone | capitalize }}</span>
+          <span class="pill">📏 {{ record.length | capitalize }}</span>
+        </div>
+
+        <!-- Content preview (truncated) -->
+        <p class="hc-preview">{{ record.generated_content[:220] }}{% if record.generated_content|length > 220 %}…{% endif %}</p>
+
+        <!-- Expand / collapse full content -->
+        <details class="hc-details">
+          <summary>Read full content</summary>
+          <div class="hc-full-content">{{ record.generated_content }}</div>
+        </details>
+
+      </div>
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <!-- Empty state -->
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>No content found</h3>
+      {% if search %}
+        <p>No records match "<strong>{{ search }}</strong>". Try a different keyword.</p>
+        <a href="/history" class="btn-primary">View all history</a>
+      {% else %}
+        <p>You haven't generated any content yet. Go ahead and create your first piece!</p>
+        <a href="/" class="btn-primary">Generate Content</a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+</section>
+
+<!-- ── Confirm delete modal ─────────────────────────────── -->
+<div id="delete-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-icon">🗑️</div>
+    <h3>Delete this record?</h3>
+    <p>This action cannot be undone.</p>
+    <div class="modal-btns">
+      <button id="confirm-delete" class="btn-danger">Yes, delete</button>
+      <button id="cancel-delete" class="btn-secondary">Cancel</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ── History Page: Delete with confirm modal ──────────────────
+let pendingDeleteId = null;
+const modal = document.getElementById('delete-modal');
+
+// Open modal when delete button is clicked
+document.querySelectorAll('.btn-delete').forEach(btn => {
+  btn.addEventListener('click', () => {
+    pendingDeleteId = btn.dataset.id;
+    modal.classList.remove('hidden');
+  });
+});
+
+// Confirm delete — call DELETE endpoint
+document.getElementById('confirm-delete').addEventListener('click', async () => {
+  if (!pendingDeleteId) return;
+  modal.classList.add('hidden');
+
+  try {
+    const res = await fetch(`/delete/${pendingDeleteId}`, { method: 'DELETE' });
+    const data = await res.json();
+
+    if (data.success) {
+      // Animate card out
+      const card = document.getElementById(`card-${pendingDeleteId}`);
+      card.style.transition = 'opacity 0.3s, transform 0.3s';
+      card.style.opacity = '0';
+      card.style.transform = 'scale(0.95)';
+      setTimeout(() => card.remove(), 320);
+    } else {
+      alert('Delete failed: ' + data.error);
+    }
+  } catch (err) {
+    alert('Network error. Please try again.');
+  }
+  pendingDeleteId = null;
+});
+
+// Cancel delete
+document.getElementById('cancel-delete').addEventListener('click', () => {
+  modal.classList.add('hidden');
+  pendingDeleteId = null;
+});
+
+// Close modal on backdrop click
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    modal.classList.add('hidden');
+    pendingDeleteId = null;
+  }
+});
+</script>
+{% endblock %}

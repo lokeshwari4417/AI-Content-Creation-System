@@ -1,0 +1,171 @@
+{% extends "layout.html" %}
+{% block title %}Generate Content — AI Content Creation System{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero Section ─────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-badge">Powered by GPT-3.5-Turbo</div>
+  <h1 class="hero-title">
+    Generate <span class="gradient-text">AI-Powered</span><br>Content Instantly
+  </h1>
+  <p class="hero-subtitle">
+    Craft blog posts, emails, ads, and more with precision prompt engineering.
+    Choose your type, set your tone, and let AI do the writing.
+  </p>
+
+  <!-- Quick stat pills -->
+  <div class="hero-stats">
+    <span class="stat-pill">📝 5 Content Types</span>
+    <span class="stat-pill">🎯 5 Tones</span>
+    <span class="stat-pill">⚡ Instant Generation</span>
+  </div>
+</section>
+
+<!-- ── Content Generation Form ──────────────────────────── -->
+<section class="form-section">
+  <div class="form-card">
+    <div class="form-card-header">
+      <h2>Content Generator</h2>
+      <p>Fill in the details below to create your content.</p>
+    </div>
+
+    <!-- Global error / success banner (hidden by default) -->
+    <div id="alert-box" class="alert hidden"></div>
+
+    <form id="content-form" novalidate>
+
+      <!-- Row 1: Content Type + Topic -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="content_type">Content Type <span class="required">*</span></label>
+          <div class="select-wrapper">
+            <select id="content_type" name="content_type" required>
+              <option value="" disabled selected>— Choose a type —</option>
+              <option value="Blog Post">📰 Blog Post</option>
+              <option value="Social Media Post">📱 Social Media Post</option>
+              <option value="Marketing Email">📧 Marketing Email</option>
+              <option value="Product Description">🛍️ Product Description</option>
+              <option value="Advertisement">📣 Advertisement</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="topic">Topic <span class="required">*</span></label>
+          <input
+            type="text"
+            id="topic"
+            name="topic"
+            placeholder="e.g., Artificial Intelligence in Healthcare"
+            required
+            maxlength="200"
+          />
+        </div>
+      </div>
+
+      <!-- Row 2: Target Audience + Tone -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="audience">Target Audience <span class="required">*</span></label>
+          <input
+            type="text"
+            id="audience"
+            name="audience"
+            placeholder="e.g., College students, Startup founders"
+            required
+            maxlength="150"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="tone">Tone <span class="required">*</span></label>
+          <div class="select-wrapper">
+            <select id="tone" name="tone" required>
+              <option value="" disabled selected>— Select tone —</option>
+              <option value="professional">🏢 Professional</option>
+              <option value="friendly">😊 Friendly</option>
+              <option value="casual">😎 Casual</option>
+              <option value="marketing">🚀 Marketing</option>
+              <option value="educational">🎓 Educational</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Content Length (radio cards) -->
+      <div class="form-group full-width">
+        <label>Content Length <span class="required">*</span></label>
+        <div class="length-options">
+          <label class="length-card">
+            <input type="radio" name="length" value="short" />
+            <div class="length-card-inner">
+              <span class="length-icon">⚡</span>
+              <span class="length-label">Short</span>
+              <span class="length-words">~200 words</span>
+            </div>
+          </label>
+          <label class="length-card">
+            <input type="radio" name="length" value="medium" checked />
+            <div class="length-card-inner">
+              <span class="length-icon">📄</span>
+              <span class="length-label">Medium</span>
+              <span class="length-words">~500 words</span>
+            </div>
+          </label>
+          <label class="length-card">
+            <input type="radio" name="length" value="long" />
+            <div class="length-card-inner">
+              <span class="length-icon">📚</span>
+              <span class="length-label">Long</span>
+              <span class="length-words">~1000 words</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" id="generate-btn" class="btn-generate">
+        <span id="btn-text">✦ Generate Content</span>
+        <span id="btn-loader" class="hidden">
+          <span class="spinner"></span> Generating…
+        </span>
+      </button>
+
+    </form>
+  </div>
+</section>
+
+<!-- ── Generated Content Output ─────────────────────────── -->
+<section id="output-section" class="output-section hidden">
+  <div class="output-card">
+
+    <!-- Header row -->
+    <div class="output-header">
+      <div class="output-meta">
+        <span id="out-type" class="out-badge"></span>
+        <span id="out-topic" class="out-topic"></span>
+      </div>
+      <div class="output-actions">
+        <button id="copy-btn" class="btn-action" title="Copy to clipboard">
+          📋 Copy
+        </button>
+        <button id="export-btn" class="btn-action btn-export hidden" title="Download as TXT">
+          ⬇ Download
+        </button>
+      </div>
+    </div>
+
+    <!-- The generated content -->
+    <div id="generated-content" class="content-body"></div>
+
+    <!-- Prompt used (collapsed by default) -->
+    <details class="prompt-details">
+      <summary>View prompt used</summary>
+      <pre id="prompt-preview" class="prompt-preview"></pre>
+    </details>
+
+  </div>
+</section>
+
+{% endblock %}

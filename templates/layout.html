@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}AI Content Creation System{% endblock %}</title>
+
+  <!-- Google Fonts: Space Grotesk (display) + Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!-- Application Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <!-- ── Navigation Bar ──────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <!-- Brand / Logo -->
+      <a href="/" class="nav-brand">
+        <span class="brand-icon">✦</span>
+        <span class="brand-name">AI<span class="brand-accent">Content</span></span>
+      </a>
+
+      <!-- Nav Links -->
+      <ul class="nav-links">
+        <li><a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">Generate</a></li>
+        <li><a href="/history" class="nav-link {% if request.path == '/history' %}active{% endif %}">History</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ── Page Content ─────────────────────────────────────── -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ── Footer ───────────────────────────────────────────── -->
+  <footer class="footer">
+    <p>
+      Built with <span class="footer-heart">♥</span> using Flask + OpenAI GPT &nbsp;|&nbsp;
+      AI Content Creation System &copy; 2024
+    </p>
+  </footer>
+
+  <!-- Application JavaScript -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
