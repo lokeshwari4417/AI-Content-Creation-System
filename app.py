@@ -46,6 +46,9 @@ def create_app():
 
 
 # ── Run the Application ─────────────────────────────────────
+
+app = create_app() 
+
 if __name__ == '__main__':
     app = create_app()
     print("🚀 AI Content Creation System is running...")
